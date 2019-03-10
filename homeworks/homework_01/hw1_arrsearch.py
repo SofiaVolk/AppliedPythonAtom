@@ -3,25 +3,39 @@
 
 
 def find_indices(input_list, n):
-    '''
-    d=dict()
-    g=[]
-    if len(input_list)>1:
-        for n1, i in enumerate(input_list):
-            d[n-i] = n1
-        for n2,i in enumerate(input_list):
-            s=d.get(i,-1)
-            if s!=-1:
-                g.append(s)
-            else: continue
-        if len(g)<1:
+    global first, second
+    d = dict()
+    k1 = []
+    k2 = []
+    c = 0
+    if len(input_list) > 1:
+        for position, value in enumerate(input_list):
+            raznost = n - value
+            d[raznost] = position
+
+        for j, val in enumerate(input_list):
+            s = d.get(val, -1)
+            if j == s:
+                continue
+            else:
+                if s != -1:
+                    if isinstance(s, list):
+                        first = s[0]
+                        second = s[1]
+                        break
+                    else:
+                        first = s
+                        s = d.get(n - val, -1)
+                        if isinstance(s, list):
+                            second = s[0]
+                        else:
+                            second = s
+                        break
+                else:
+                    continue
+        if s == -1:
             return None
         else:
-            h=tuple(g)
-            return h
-        if g == -1:
-            return None
+            return first, second
     else:
         return None
-    '''
-    raise NotImplementedError
