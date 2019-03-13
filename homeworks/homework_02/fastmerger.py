@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from .heap import MaxHeap
-
 
 class FastSortedListMerger:
 
     @staticmethod
     def merge_first_k(list_of_lists, k):
-        '''
-        принимает на вход список отсортированных непоубыванию списков и число
-        на выходе выдает один список длинной k, отсортированных по убыванию
-        '''
-        raise NotImplementedError
+        out_len = []
+        for i in list_of_lists:
+            out_len += i
+        out_len = sorted(out_len)
+        return sorted(out_len[-k:], reverse=True)

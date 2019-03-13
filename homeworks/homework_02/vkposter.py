@@ -9,55 +9,51 @@ from homeworks.homework_02.fastmerger import FastSortedListMerger
 class VKPoster:
 
     def __init__(self):
-        raise NotImplementedError
+        self.friends = dict()
+        self.read_post = dict()
+        self.posted_post = dict()
 
     def user_posted_post(self, user_id: int, post_id: int):
-        '''
-        Метод который вызывается когда пользователь user_id
-        выложил пост post_id.
-        :param user_id: id пользователя. Число.
-        :param post_id: id поста. Число.
-        :return: ничего
-        '''
-        pass
+        if user_id in self.posted_post.keys():
+            self.posted_post[user_id].append(post_id)
+        else:
+            self.posted_post[user_id] = [post_id]
 
     def user_read_post(self, user_id: int, post_id: int):
-        '''
-        Метод который вызывается когда пользователь user_id
-        прочитал пост post_id.
-        :param user_id: id пользователя. Число.
-        :param post_id: id поста. Число.
-        :return: ничего
-        '''
-        pass
+        if post_id in self.read_post.keys():
+            if user_id not in self.read_post[post_id]:
+                self.read_post[post_id].append(user_id)
+        else:
+            self.read_post[post_id] = [user_id]
 
     def user_follow_for(self, follower_user_id: int, followee_user_id: int):
-        '''
-        Метод который вызывается когда пользователь follower_user_id
-        подписался на пользователя followee_user_id.
-        :param follower_user_id: id пользователя. Число.
-        :param followee_user_id: id пользователя. Число.
-        :return: ничего
-        '''
-        pass
+        if follower_user_id != followee_user_id:
+            if follower_user_id in self.friends.keys():
+                self.friends[follower_user_id].append(followee_user_id)
+            else:
+                self.friends[follower_user_id] = [followee_user_id]
 
-    def get_recent_posts(self, user_id: int, k: int)-> list:
-        '''
-        Метод который вызывается когда пользователь user_id
-        запрашивает k свежих постов людей на которых он подписан.
-        :param user_id: id пользователя. Число.
-        :param k: Сколько самых свежих постов необходимо вывести. Число.
-        :return: Список из post_id размером К из свежих постов в
-        ленте пользователя. list
-        '''
-        pass
+    def get_recent_posts(self, user_id: int, k: int) -> list:
+        all_posts = []
+        following = self.friends.get(user_id, -1)
+        if following != -1:
+            for u_id in following:
+                posts_u_id = self.posted_post.get(u_id, -1)
+                if posts_u_id != -1:
+                    all_posts.append(posts_u_id)
+            ll = FastSortedListMerger()
+        return ll.merge_first_k(all_posts, k)
 
     def get_most_popular_posts(self, k: int) -> list:
         '''
-        Метод который возвращает список k самых популярных постов за все время,
-        остортированных по свежести.
-        :param k: Сколько самых свежих популярных постов
-        необходимо вывести. Число.
-        :return: Список из post_id размером К из популярных постов. list
+        popular_posts= []
+        mh = MaxHeap(popular_posts)
+        for key, value in self.read_post.items():
+            mh.add((len(value), key))
+        for i in range(k):
+            popular_posts.append(mh.extract_maximum()[1])
+        return popular_posts
         '''
-        pass
+        popular_posts = sorted(self.read_post, reverse=True)
+        return sorted(popular_posts, key=lambda pp_id:
+                      len(self.read_post[pp_id]), reverse=True)[:k]
