@@ -16,7 +16,7 @@ class Heap():
     def el_up(self, i):
         parent = i // 2
         # новый элемент не больше корня и новый элемент больше родителя
-        while i > 1 and comparator_d(self.array[i], self.array[parent]):
+        while i >= 1 and comparator_d(self.array[i], self.array[parent]):
             self.array[parent], self.array[i] = \
                 self.array[i], self.array[parent]
             i = parent
@@ -48,6 +48,7 @@ class MaxHeap(Heap):
         super(MaxHeap, self).__init__(array)
 
     def extract_maximum(self):
+        result = tuple()
         if len(self.array):
             result = self.array.pop(0)
             self.build_heap()

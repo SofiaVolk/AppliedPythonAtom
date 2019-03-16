@@ -45,7 +45,7 @@ class VKPoster:
         return ll.merge_first_k(all_posts, k)
 
     def get_most_popular_posts(self, k: int) -> list:
-        '''
+        
         popular_posts= []
         mh = MaxHeap(popular_posts)
         for key, value in self.read_post.items():
@@ -57,3 +57,4 @@ class VKPoster:
         popular_posts = sorted(self.read_post, reverse=True)
         return sorted(popular_posts, key=lambda pp_id:
                       len(self.read_post[pp_id]), reverse=True)[:k]
+        '''
