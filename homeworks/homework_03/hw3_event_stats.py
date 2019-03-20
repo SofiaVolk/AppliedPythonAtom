@@ -1,32 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
+from collections import Counter
 
 
 class TEventStats:
     FIVE_MIN = 300
 
     def __init__(self):
-        # TODO: реализовать метод
-        raise NotImplementedError
+        self.action = {}
 
     def register_event(self, user_id, time):
-        """
-        Этот метод регистрирует событие активности пользователя.
-        :param user_id: идентификатор пользователя
-        :param time: время (timestamp)
-        :return: None
-        """
-        # TODO: реализовать метод
-        raise NotImplementedError
+        if user_id in self.action.keys():
+            self.action[user_id].append(time)
+        else:
+            self.action[user_id] = [time]
 
     def query(self, count, time):
-        """
-        Этот метод отвечает на запросы.
-        Возвращает количество пользователей, которые за последние 5 минут
-        (на полуинтервале времени (time - 5 min, time]), совершили ровно count действий
-        :param count: количество действий
-        :param time: время для рассчета интервала
-        :return: activity_count: int
-        """
-        # TODO: реализовать метод
-        raise NotImplementedError
+        users = []
+        time_end = time - self.FIVE_MIN
+        users = set([i for i in self.action.keys() if len(self.action[i]) == count
+                     for j in self.action[i] if time_end < j < time])
+        return len(users)

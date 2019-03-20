@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
+import shutil
+import os
 
 
 class Requester:
@@ -44,21 +46,27 @@ class OrdinaryFileWorker(RemoteFileReader):
 
 
 class MockOrdinaryFileWorker(OrdinaryFileWorker):
-    '''
-    Необходимо отнаследовать данный класс так, чтобы
-     он вместо запросов на удаленный сервер:
-      при transfer_to_remote считывал filename
-     из локальной директории ./test_dir и сохранял filename.tmp
-     в локальной директории ./tmpf
-      при transfer_to_local считывал filename.tmp
-     из локальной директории ./test_dir и сохранял в filename
-     в локальной директории ./tmpf
-      при удалении объекта директория ./tmp должна удаляться
-      при создании объекта, директория ./tmp должна создаваться
-     если еще не создана
-    '''
-    def __init__(self):
-        raise NotImplementedError
+        def __init__(self):
+            self.path_test = "./homeworks/homework_03/test_dir/"
+            self.path_tmpf = "./tmpf/"
+            try:
+                os.mkdir(self.path_tmpf)
+            except:
+                pass
+
+        def transfer_to_local(self, filename):
+            with open('{0}{1}{2}'.format(self.path_test, filename, '.tmp'), 'r') as fromfile:
+                with open(self.path_tmpf + filename, 'w') as tof1ile:
+                    tof1ile.writelines(fromfile.read())
+
+        def transfer_to_remote(self, filename):
+            with open(self.path_test + filename, 'r') as fromfile:
+                with open('{0}{1}{2}'.format(self.path_tmpf, filename, '.tmp'), 'w') as tof1ile:
+                    tof1ile.writelines(fromfile.read())
+
+        def __del__(self):
+            if os.path.exists(self.path_tmpf):
+                shutil.rmtree(self.path_tmpf)
 
 
 class LLNode:
