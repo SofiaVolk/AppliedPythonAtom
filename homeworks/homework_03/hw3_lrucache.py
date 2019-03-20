@@ -1,41 +1,53 @@
 #!/usr/bin/env python
 # coding: utf-8
-from collections import OrderedDict
 import time
+from collections import OrderedDict
 
 
 class LRUCacheDecorator:
 
-    def __init__(self, maxsize, ttl):
+    def __init__(self, maxsize=None, ttl=None):
         self.maxsize = maxsize
         self.ttl = ttl
-        self.lru = OrderedDict()
-        self.time = OrderedDict()
+        self.function_result = OrderedDict()
+        self.time_in_cache = OrderedDict()
 
-    def __call__(self, f):
-        def funcc(*args, **kwargs):
-            if self.ttl is None:
-                self.ttl = 3600000
-            if self.lru.get(args[0]):
-                if self.ttl > (time.time() - self.time[args[0]]):
-                    return self.lru[args[0]]
+    def del_old(self, *args):
+        self.function_result.popitem(*args)
+        self.time_in_cache.popitem(*args)
+
+    def update_cache(self, arg, result):
+        self.function_result[arg] = result
+        self.time_in_cache[arg] = time.time()
+
+    def __call__(self, some_function):
+        def lru_function(*args, **kwargs):
+            input_param = args
+
+            # если элемент есть в кэше
+            if self.function_result.get(input_param):
+                if self.ttl is not None:
+                    if self.ttl > (time.time() - self.time_in_cache[input_param]):
+                        return self.function_result[input_param]
+                    else:
+                        self.del_old(input_param)
+                        new_result = some_function(*args, **kwargs)
+                        self.update_cache(input_param, new_result)
+                        return new_result
                 else:
-                    self.lru.popitem(args[0])
-                    self.time.popitem(args[0])
-                    r = f(*args, **kwargs)
-                    self.lru.update({args[0]: r})
-                    self.time[args[0]] = time.time()
-                    return r
-            elif len(self.lru) == self.maxsize:
-                self.lru.popitem(args[0])
-                self.time.popitem(args[0])
-                r = f(*args, **kwargs)
-                self.lru.update({args[0]: r})
-                self.time[args[0]] = time.time()
-                return r
+                    return self.function_result[input_param]
+
+            # если элемента в кэше нет, то проверяем забит ли кэш (можно ли его туда
+            # положить или нужно удалить самый старый элемент кэша)
+            elif self.maxsize != len(self.function_result):
+                new_result = some_function(*args, **kwargs)
+                self.update_cache(input_param, new_result)
+                return new_result
             else:
-                r = f(*args, **kwargs)
-                self.lru.update({args[0]: r})
-                self.time[args[0]] = time.time()
-                return r
-        return funcc
+                # освобождаем место, удаляя самый старый элемент, даже если его время меньше ttl
+                self.del_old()
+                new_result = some_function(*args, **kwargs)
+                self.update_cache(input_param, new_result)
+                return new_result
+
+        return lru_function
