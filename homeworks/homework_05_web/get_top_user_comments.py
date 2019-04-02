@@ -26,7 +26,7 @@ async def parsing(url):
     for key, value in temp.items():
         res.append({"link": url, "username": key, "count_comment": value})
 
-    return sorted(res, key=lambda x: -x["count_comment"])
+    return sorted(res, key=lambda x: (-x["count_comment"], x['username']))
 
 
 def form_file(res):
